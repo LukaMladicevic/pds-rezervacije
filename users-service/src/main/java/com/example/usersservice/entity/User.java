@@ -8,7 +8,7 @@ import lombok.Setter;
 
 
 @Entity(name="user")
-@Table(name="users")
+@Table(name="users", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -23,7 +23,7 @@ public class User {
     private String firstName;
     @Column(nullable = false)
     private String lastName;
-    @Column
+    @Column(nullable = false)
     private String email;
     @Column(nullable = false)
     private String phone;

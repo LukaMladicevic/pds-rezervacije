@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 
 //    @Query("update user u set u.email = :email where u.id = :id")
 //    Optional<User> updateUserEmailByID(@Param("id") int id,@Param("email") String email);
+
+    Boolean existsByEmail(String email);
 }
