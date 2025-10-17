@@ -1,0 +1,15 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapperr/maven-wrapper.jar
+
+idea/
+*.iml
+.project
+.classpath
+.settings/
+bin/
+
+.DS_Store
+Thumbs.db
+
+mvn -N io.takari:maven:0.7.7:wrapper
