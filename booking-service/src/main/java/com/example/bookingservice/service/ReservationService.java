@@ -7,9 +7,11 @@ import com.example.bookingservice.feign.UsersClient;
 import com.example.bookingservice.repository.BookingRepository;
 import com.example.bookingservice.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,8 +22,11 @@ public class ReservationService {
     private final ReservationIntegrationService integration;
 
     public UserDTO fetchUser(Integer userID) {
-
         return integration.fetchUserOrThrow(userID);
+    }
+
+    public List<UserDTO> fetchAllUsers(){
+        return integration.fetchAllUsersOrThrow();
     }
 
 }

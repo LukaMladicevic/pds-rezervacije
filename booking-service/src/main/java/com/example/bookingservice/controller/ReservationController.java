@@ -14,6 +14,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,24 +63,45 @@ public class ReservationController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllReseravations(){
-        List<Reservation> reservationList = reservationRepository.findAll();
+    public List<CompleteReservationDTO> getAllReseravations(){
+        List<Reservation> reservations = reservationRepository.findAll();
         List<CompleteReservationDTO> completeReservations = new ArrayList<>();
-        for(Reservation r : reservationList){
-            Integer bookingID = r.getBookingId();
-            Integer userID = r.getUserId();
-            BookingLocation booking = bookingRepository.findById(bookingID).orElse(null);
-            UserDTO userDTO = service.fetchUser(userID);
-            if(booking == null){
-                continue;
-            }
-            CompleteReservationDTO reservationDTO = new CompleteReservationDTO();
-            modelMapper.map(userDTO,reservationDTO);
-            modelMapper.map(booking,reservationDTO);
-            completeReservations.add(reservationDTO);
+        List<UserDTO> usersDTO = service.fetchAllUsers();
 
+        for(Reservation r : reservations){
+            CompleteReservationDTO completeDTO = new CompleteReservationDTO();
+
+            for(UserDTO u : usersDTO){
+                if(r.getUserId()==u.getId()){
+                    modelMapper.map(u,completeDTO);
+                    break;
+                }
+            }
+            BookingLocation booking = bookingRepository.findById(r.getBookingId()).orElse(null);
+            modelMapper.map(booking,completeDTO);
+            modelMapper.map(r,completeDTO);
+            completeReservations.add(completeDTO);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(completeReservations);
+
+        return completeReservations;
+    }
+
+    @GetMapping("/{id}/user")
+    public List<CompleteReservationDTO> getReservationByUserID(@PathVariable("id") Integer id){
+        List<CompleteReservationDTO> completeReservationDTOS = new ArrayList<>();
+        List<Reservation> reservations = reservationRepository.findAll();
+        UserDTO userDTO = service.fetchUser(id);
+        for(Reservation r : reservations){
+            if(r.getUserId() == id){
+                CompleteReservationDTO completeDTO = new CompleteReservationDTO();
+                BookingLocation booking = bookingRepository.findById(r.getBookingId()).orElse(null);
+                modelMapper.map(booking,completeDTO);
+                modelMapper.map(userDTO,completeDTO);
+                modelMapper.map(r,completeDTO);
+                completeReservationDTOS.add(completeDTO);
+            }
+        }
+        return completeReservationDTOS;
     }
 
 }

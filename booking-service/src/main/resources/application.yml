@@ -31,8 +31,14 @@ feign:
   client:
     config:
       default:
-        connectTimeout: 2000    # ms
-        readTimeout: 3000       # ms
+        connectTimeout: 2000
+        readTimeout: 3000
+        circuitbreaker:
+          name: externalCb
+          enabled: true
+        retry:
+          name: externalRetry
+          enabled: true
 
 management:
   endpoints:
@@ -52,26 +58,27 @@ management:
 resilience4j:
   circuitbreaker:
     instances:
-      usersServiceCb:
-        register-health-indicator: true
-        event-consumer-buffer-size: 10
+      externalCb:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
         failure-rate-threshold: 50
-        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 5
         automatic-transition-from-open-to-half-open-enabled: true
-        wait-duration-in-open-state: 5s
-        permitted-number-of-calls-in-half-open-state: 3
-        sliding-window-size: 10
-        sliding-window-type: count_based
-
-
+        record-exceptions:
+          - java.net.SocketTimeoutException
+          - java.net.ConnectException
+          - feign.RetryableException
   retry:
     instances:
-      usersServiceRetry:
+      externalRetry:
         max-attempts: 3
-        wait-duration: 5s
+        wait-duration: 500ms
         retry-exceptions:
+          - java.net.SocketTimeoutException
+          - java.net.ConnectException
           - feign.RetryableException
-          - java.io.IOException
 
 logging:
   level:

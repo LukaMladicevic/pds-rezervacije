@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -25,9 +26,16 @@ public class UserController {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
-    @GetMapping
+    @GetMapping("/names")
     public List<String> getAllUserNames(){
         return userRepository.getAllUserNames();
+    }
+
+    @GetMapping
+    public List<UserDTO> getAllUsers(){
+         List<User> users = userRepository.findAll();
+         List<UserDTO> dtos = users.stream().map(u->modelMapper.map(u,UserDTO.class)).collect(Collectors.toList());
+         return dtos;
     }
 
 //    @GetMapping("/users/{id}")
