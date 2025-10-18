@@ -32,12 +32,14 @@ public class BookingController {
     public ResponseEntity<?> getLocationByID(@PathVariable @Min(1) Integer id){
         BookingLocation location = bookingRepository.findById(id).orElse(null);
         if(location == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Korisnik sa id-om: " +id+" nije pronadjen.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Booking sa id-om: " +id+" nije pronadjen.");
         }
         BookingLocationDTO response = modelMapper.map(location,BookingLocationDTO.class);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
+
+
 
     @PostMapping
     public ResponseEntity<?> saveBooking(@Valid @RequestBody BookingLocationDTO dto){
@@ -46,7 +48,7 @@ public class BookingController {
         }
         BookingLocation booking = modelMapper.map(dto,BookingLocation.class);
         bookingRepository.save(booking);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Uspesno kreirana rezervacija");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Uspesno kreiran booking");
     }
 
     @PostMapping("/delete/{id}")
@@ -66,7 +68,7 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Krajnji datum mora biti posle pocetnog");
         }
         if(booking==null){
-            return ResponseEntity.status(HttpStatus.OK).body("Ne postoji booking za id:"+id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ne postoji booking za id:"+id);
         }
         Date startAt = dto.getStartAt();
         Date endAt = dto.getEndAt();
