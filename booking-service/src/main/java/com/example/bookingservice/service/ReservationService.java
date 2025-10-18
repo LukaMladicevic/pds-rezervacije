@@ -17,15 +17,11 @@ import java.util.Optional;
 public class ReservationService {
 
     private final UsersClient usersClient;
+    private final ReservationIntegrationService integration;
 
-    public Optional<UserDTO> fetchUser(Integer userID) {
+    public UserDTO fetchUser(Integer userID) {
 
-        ResponseEntity<UserDTO> response = usersClient.getUserById(userID);
-        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
-            return Optional.empty();
-        }
-
-        return Optional.of(response.getBody());
+        return integration.fetchUserOrThrow(userID);
     }
 
 }

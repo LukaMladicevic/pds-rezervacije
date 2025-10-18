@@ -20,7 +20,7 @@ spring:
   cloud:
     openfeign:
       circuitbreaker:
-        enabled: true
+        enabled: false   # ⬅️ isključeno, jer CB i Retry koristimo ručno u @Service sloju
 
 eureka:
   client:
@@ -31,32 +31,50 @@ feign:
   client:
     config:
       default:
-        connectTimeout: 2000
-        readTimeout: 3000
-
-
+        connectTimeout: 2000    # ms
+        readTimeout: 3000       # ms
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,circuitbreakers,retries
+  endpoint:
+    circuitbreakers:
+      enabled: true
+    retries:
+      enabled: true
+    metrics:
+      enabled: true
+  health:
+    show-details: always
+
 resilience4j:
   circuitbreaker:
     instances:
       usersServiceCb:
-        sliding-window-size: 10
+        register-health-indicator: true
+        event-consumer-buffer-size: 10
         failure-rate-threshold: 50
-        wait-duration-in-open-state: 10000
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: count_based
 
 
   retry:
     instances:
       usersServiceRetry:
         max-attempts: 3
-        wait-duration: 300
+        wait-duration: 5s
+        retry-exceptions:
+          - feign.RetryableException
+          - java.io.IOException
 
 logging:
   level:
-    feign: INFO
+    io.github.resilience4j: DEBUG
     org.springframework.cloud.openfeign: INFO
+    feign: INFO

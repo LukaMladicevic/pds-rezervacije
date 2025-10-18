@@ -54,14 +54,10 @@ public class ReservationController {
         if(checkIfUserIsAlreadyBooked(userID,bookingID))
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Korisnik je vec rezervisao ovaj booking.");
 
-        UserDTO dto = service.fetchUser(userID).orElse(null);
-        if(dto != null){
-            Reservation reservation = modelMapper.map(reservationDTO, Reservation.class);
-            reservationRepository.save(reservation);
-            return ResponseEntity.status(HttpStatus.OK).body("Uspesno dodata rezervacija.");
-        }
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("Neispravan unos.");
+        service.fetchUser(userID);
+        Reservation reservation = modelMapper.map(reservationDTO, Reservation.class);
+        reservationRepository.save(reservation);
+        return ResponseEntity.status(HttpStatus.OK).body("Uspesno dodata rezervacija.");
     }
 
     @GetMapping
@@ -72,8 +68,8 @@ public class ReservationController {
             Integer bookingID = r.getBookingId();
             Integer userID = r.getUserId();
             BookingLocation booking = bookingRepository.findById(bookingID).orElse(null);
-            UserDTO userDTO = service.fetchUser(userID).orElse(null);
-            if(booking == null || userDTO == null){
+            UserDTO userDTO = service.fetchUser(userID);
+            if(booking == null){
                 continue;
             }
             CompleteReservationDTO reservationDTO = new CompleteReservationDTO();

@@ -8,7 +8,7 @@
   <artifactId>pds-rezervacije</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>PDS Rezervacije - Monorepo</name>
+  <name>PDS Rezervacije</name>
 
   <properties>
     <java.version>17</java.version>
