@@ -12,8 +12,31 @@ spring:
             locator:
               enabled: true
               lower-case-service-id: true
+          routes:
+            - id: users-service
+              uri: lb://users-service
+              predicates:
+                - Path=/api/users/**
+              filters:
+                - StripPrefix=1
+
+            - id: booking-service
+              uri: lb://booking-service
+              predicates:
+                - Path=/api/booking/**
+              filters:
+                - StripPrefix=1
+
+            - id: reservations
+              uri: lb://booking-service
+              predicates:
+                - Path=/api/reservations/**
+              filters:
+                - StripPrefix=1
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
