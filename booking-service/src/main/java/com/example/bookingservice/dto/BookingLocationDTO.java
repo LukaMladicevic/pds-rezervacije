@@ -4,6 +4,7 @@ import com.example.bookingservice.entity.Accomodation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.Date;
 public class BookingLocationDTO {
 
     @NotBlank(message="Lokacija je obavezna")
+    @Pattern(regexp = "^[A-Z].*",message="Ime lokacije mora poceti velikim slovom")
     private String location;
     @NotNull(message="Tip smestaja je obavezan")
     private Accomodation accomodationType;

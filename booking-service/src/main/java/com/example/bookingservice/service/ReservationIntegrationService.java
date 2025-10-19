@@ -24,12 +24,12 @@ public class ReservationIntegrationService {
     @Retry(name = "externalRetry")
     @CircuitBreaker(name = "externalCb", fallbackMethod = "getUserFallback")
     public UserDTO fetchUserOrThrow(Integer userId) {
-        log.info("Poziv users-service-a userId="+ userId);
+        log.info("Poziv users-service-a (Feign) userId="+ userId);
         return usersClient.getUserById(userId).getBody(); // Feign poziv
     }
 
     public UserDTO getUserFallback(Integer userId, Throwable t) {
-        log.warn("CB fallback pri trazenju korisnika sa id-jem"+ userId+" cause="+t.toString());
+        log.warn("CB fallback pri trazenju korisnika sa id-jem = "+ userId+" cause="+t.toString());
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
                 "Users service trenutno nije dostupan (CB fallback).", t
@@ -39,7 +39,7 @@ public class ReservationIntegrationService {
     @Retry(name="externalRetry")
     @CircuitBreaker(name="externalCb",fallbackMethod = "getReservationsFallback")
     public List<UserDTO> fetchAllUsersOrThrow(){
-        log.info("Poziv users-service-a");
+        log.info("Poziv users-service-a (Feign)");
         return usersClient.getAllUsers();
     }
 
