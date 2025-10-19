@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -38,12 +39,6 @@ public class UserController {
          return dtos;
     }
 
-//    @GetMapping("/users/{id}")
-//    public UserDTO getUserByID(@PathVariable Integer id){
-//        User user = userRepository.getUserByID(id).orElse(null);
-//        return modelMapper.map(user,UserDTO.class);
-//    }
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserByID(@PathVariable @Min(1) Integer id){
         User user = userRepository.findById(id).orElse(null);
@@ -55,17 +50,20 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveUser(@Valid @RequestBody UserSaveDTO dto){
+    public ResponseEntity<?> saveUser(@Valid @RequestBody UserSaveDTO dto, BindingResult result){
+        if(result.hasErrors()){
+            List<String> errors = result.getFieldErrors().stream().map(error->error.getDefaultMessage()).toList();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
         if(userRepository.existsByEmail(dto.getEmail())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email je vec u upotebi!");
         }
         User user = modelMapper.map(dto,User.class);
-        user = userRepository.save(user);
-        UserDTO response = modelMapper.map(user,UserDTO.class);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Korisnik dodat");
     }
 
-    @PostMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable @Min(1) Integer id){
         if(userRepository.existsById(id))
         {
@@ -77,8 +75,13 @@ public class UserController {
 
     }
 
-    @PostMapping("/{id}/email")
-    public ResponseEntity<?> updateUserEmailByID(@PathVariable @Min(1) Integer id,@Valid @RequestBody UserEmailChangeDTO dto){
+    @PatchMapping("/email")
+    public ResponseEntity<?> updateUserEmailByID(@Valid @RequestBody UserEmailChangeDTO dto, BindingResult result){
+        Integer id = dto.getId();
+        if(result.hasErrors()){
+            List<String> errors = result.getFieldErrors().stream().map(error->error.getDefaultMessage()).toList();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
         User user = userRepository.findById(id).orElse(null);
         if(user == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Korisnik sa ID "+id+" nije pronadjen.");

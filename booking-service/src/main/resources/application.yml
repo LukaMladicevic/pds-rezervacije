@@ -1,5 +1,9 @@
 server:
   port: 8082
+  error:
+    include-message: always
+    include-binding-errors: never
+    include-exception: false
 
 spring:
   application:
@@ -17,15 +21,26 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
   cloud:
     openfeign:
       circuitbreaker:
-        enabled: false   # ⬅️ isključeno, jer CB i Retry koristimo ručno u @Service sloju
+        enabled: false
+    loadbalancer:
+      cache:
+        enabled: true
 
 eureka:
   client:
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
+    shouldUnregisterOnShutdown: false
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
 
 feign:
   client:
@@ -33,12 +48,7 @@ feign:
       default:
         connectTimeout: 2000
         readTimeout: 3000
-        circuitbreaker:
-          name: externalCb
-          enabled: true
-        retry:
-          name: externalRetry
-          enabled: true
+        retryer: feign.Retryer$NeverRetry
 
 management:
   endpoints:
@@ -60,28 +70,38 @@ resilience4j:
     instances:
       externalCb:
         sliding-window-type: COUNT_BASED
-        sliding-window-size: 20
+        sliding-window-size: 5
         minimum-number-of-calls: 10
         failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 5
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 1
         automatic-transition-from-open-to-half-open-enabled: true
         record-exceptions:
-          - java.net.SocketTimeoutException
-          - java.net.ConnectException
+          - feign.FeignException
           - feign.RetryableException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - org.springframework.web.client.ResourceAccessException
+        ignore-exceptions:
+          - org.springframework.web.server.ResponseStatusException
+
   retry:
     instances:
       externalRetry:
         max-attempts: 3
         wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
         retry-exceptions:
-          - java.net.SocketTimeoutException
-          - java.net.ConnectException
+          - feign.FeignException$ServiceUnavailable
           - feign.RetryableException
+          - java.io.IOException
+        ignore-exceptions:
+          - org.springframework.web.server.ResponseStatusException
 
 logging:
   level:
-    io.github.resilience4j: DEBUG
+    org.springframework.cloud.loadbalancer: INFO
     org.springframework.cloud.openfeign: INFO
     feign: INFO
+    io.github.resilience4j: INFO

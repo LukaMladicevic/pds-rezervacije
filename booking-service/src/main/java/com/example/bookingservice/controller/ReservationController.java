@@ -13,13 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PathVariable;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/reservations")
@@ -31,77 +30,79 @@ public class ReservationController {
     private final BookingRepository bookingRepository;
     private final ModelMapper modelMapper;
 
-    public boolean checkIfReservationExists(Integer bookingID){
-        return reservationRepository.existsById(bookingID);
-    }
-
-    public boolean checkIfBookingExists(Integer bookingID){
-        return bookingRepository.existsById(bookingID);
-    }
-
-    public boolean checkIfUserIsAlreadyBooked(Integer userID,Integer bookingID){
-        return reservationRepository.existsByUserIdAndBookingId(userID,bookingID);
-    }
-
-
     @PostMapping("/reserve")
-    public ResponseEntity<?> makeReservation(@RequestBody ReservationDTO reservationDTO){
-        Integer bookingID = reservationDTO.getBookingId();
-        Integer userID = reservationDTO.getUserId();
+    public ResponseEntity<?> makeReservation(@RequestBody ReservationDTO reservationDTO) {
 
-        if(checkIfReservationExists(bookingID))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Rezervacija vec postoji.");
-        if(!checkIfBookingExists(bookingID))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Booking za dati ID ne postoji.");
-        if(checkIfUserIsAlreadyBooked(userID,bookingID))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Korisnik je vec rezervisao ovaj booking.");
+        Integer bookingId = reservationDTO.getBookingId();
+        Integer userId    = reservationDTO.getUserId();
 
-        service.fetchUser(userID);
-        Reservation reservation = modelMapper.map(reservationDTO, Reservation.class);
-        reservationRepository.save(reservation);
-        return ResponseEntity.status(HttpStatus.OK).body("Uspesno dodata rezervacija.");
+        if (!bookingRepository.existsById(bookingId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Booking ne postoji.");
+        }
+        if (reservationRepository.existsByUserIdAndBookingId(userId, bookingId)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Duplikat rezervacije.");
+        }
+        service.fetchUser(userId);
+
+        BookingLocation bookingRef = bookingRepository.getReferenceById(bookingId);
+
+        Reservation r = new Reservation();
+        r.setBooking(bookingRef);
+        r.setUserId(userId);
+
+        reservationRepository.save(r);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Uspešno dodata rezervacija.");
     }
+
 
     @GetMapping
-    public List<CompleteReservationDTO> getAllReseravations(){
-        List<Reservation> reservations = reservationRepository.findAll();
-        List<CompleteReservationDTO> completeReservations = new ArrayList<>();
-        List<UserDTO> usersDTO = service.fetchAllUsers();
+    public List<CompleteReservationDTO> getAllReseravations() {
+        List<Reservation> reservations = reservationRepository.findAllFetchBooking();
+        List<UserDTO> users = service.fetchAllUsers();
+        List<CompleteReservationDTO> result = new ArrayList<>(reservations.size());
 
-        for(Reservation r : reservations){
-            CompleteReservationDTO completeDTO = new CompleteReservationDTO();
+        for (Reservation r : reservations) {
+            CompleteReservationDTO dto = new CompleteReservationDTO();
 
-            for(UserDTO u : usersDTO){
-                if(r.getUserId()==u.getId()){
-                    modelMapper.map(u,completeDTO);
-                    break;
+            dto.setBookingId(r.getBookingId());
+            dto.setUserId(r.getUserId());
+            dto.setCreatedAt(r.getCreatedAt());
+
+            BookingLocation booking = r.getBooking();
+            modelMapper.map(booking, dto);
+            for (UserDTO user : users) {
+                if (Objects.equals(user.getId(), r.getUserId())) {
+                    modelMapper.map(user, dto);; break;
                 }
             }
-            BookingLocation booking = bookingRepository.findById(r.getBookingId()).orElse(null);
-            modelMapper.map(booking,completeDTO);
-            modelMapper.map(r,completeDTO);
-            completeReservations.add(completeDTO);
-        }
 
-        return completeReservations;
+            result.add(dto);
+        }
+        return result;
     }
 
+
     @GetMapping("/{id}/user")
-    public List<CompleteReservationDTO> getReservationByUserID(@PathVariable("id") Integer id){
-        List<CompleteReservationDTO> completeReservationDTOS = new ArrayList<>();
-        List<Reservation> reservations = reservationRepository.findAll();
+    public List<CompleteReservationDTO> getReservationByUserID(@PathVariable("id") Integer id) {
+        List<Reservation> reservations = reservationRepository.findByUserIDFetchBooking(id);
+
         UserDTO userDTO = service.fetchUser(id);
-        for(Reservation r : reservations){
-            if(r.getUserId() == id){
-                CompleteReservationDTO completeDTO = new CompleteReservationDTO();
-                BookingLocation booking = bookingRepository.findById(r.getBookingId()).orElse(null);
-                modelMapper.map(booking,completeDTO);
-                modelMapper.map(userDTO,completeDTO);
-                modelMapper.map(r,completeDTO);
-                completeReservationDTOS.add(completeDTO);
-            }
+
+        List<CompleteReservationDTO> complete = new ArrayList<>(reservations.size());
+        for (Reservation r : reservations) {
+            CompleteReservationDTO dto = new CompleteReservationDTO();
+
+            dto.setBookingId(r.getBookingId());
+            dto.setUserId(r.getUserId());
+            dto.setCreatedAt(r.getCreatedAt());
+
+            BookingLocation booking = r.getBooking();
+            modelMapper.map(booking, dto);
+            modelMapper.map(userDTO, dto);
+            complete.add(dto);
         }
-        return completeReservationDTOS;
+        return complete;
     }
 
 }

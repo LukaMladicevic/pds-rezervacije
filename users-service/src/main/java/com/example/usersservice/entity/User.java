@@ -14,7 +14,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class User {
-
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column
@@ -27,5 +26,4 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String phone;
-
 }

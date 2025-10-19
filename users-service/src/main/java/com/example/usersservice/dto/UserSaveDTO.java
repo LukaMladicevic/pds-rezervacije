@@ -24,7 +24,7 @@ public class UserSaveDTO {
     @Pattern(regexp = "^[A-Z].*",message="Prezime mora poceti velikim slovom")
     private String lastName;
     @NotBlank(message = "Email je obavezan")
-    @Email
+    @Email(message="Polje mora biti tipa email")
     @Size(max = 50)
     private String email;
     @NotBlank(message = "Broj telefona je obavezan")

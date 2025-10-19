@@ -4,6 +4,7 @@ import com.example.bookingservice.dto.BookingLocationDTO;
 import com.example.bookingservice.dto.ChangeBookingDateDTO;
 import com.example.bookingservice.entity.BookingLocation;
 import com.example.bookingservice.repository.BookingRepository;
+import com.example.bookingservice.repository.ReservationRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.Binding;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class BookingController {
 
     private final ModelMapper modelMapper;
     private final BookingRepository bookingRepository;
+    private final ReservationRepository reservationRepository;
 
     @GetMapping
     public List<String> getAllReservationBookingLocations(){
@@ -39,11 +43,13 @@ public class BookingController {
 
     }
 
-
-
     @PostMapping
-    public ResponseEntity<?> saveBooking(@Valid @RequestBody BookingLocationDTO dto){
-        if(dto.getStartAt().after(dto.getEndAt())){
+    public ResponseEntity<?> saveBooking(@Valid @RequestBody BookingLocationDTO dto, BindingResult result){
+        if(result.hasErrors()){
+            List<String> errors = result.getFieldErrors().stream().map(error->error.getDefaultMessage()).toList();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
+        if(dto.getStartAt().after(dto.getEndAt()) || dto.getStartAt().equals(dto.getEndAt())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Krajnji datum mora biti posle pocetnog");
         }
         BookingLocation booking = modelMapper.map(dto,BookingLocation.class);
@@ -51,8 +57,11 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Uspesno kreiran booking");
     }
 
-    @PostMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBookingByID(@PathVariable @Min(1) Integer id){
+        if(reservationRepository.existsById(id))
+            reservationRepository.deleteById(id);
+
         if(bookingRepository.existsById(id)){
             bookingRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body("Uspesno obrisana lokacija sa id-jem: "+id);
@@ -61,10 +70,14 @@ public class BookingController {
 
     }
 
-    @PostMapping("/changeDate/{id}")
-    public ResponseEntity<?> changeBooking(@Valid @RequestBody ChangeBookingDateDTO dto, @PathVariable Integer id){
+    @PatchMapping("/changeDate/{id}")
+    public ResponseEntity<?> changeBooking(@Valid @RequestBody ChangeBookingDateDTO dto, @PathVariable Integer id, BindingResult result){
+        if(result.hasErrors()){
+            List<String> errors = result.getFieldErrors().stream().map(error->error.getDefaultMessage()).toList();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
         BookingLocation booking = bookingRepository.findById(id).orElse(null);
-        if(dto.getStartAt().after(dto.getEndAt())){
+        if(dto.getStartAt().after(dto.getEndAt()) || dto.getStartAt().equals(dto.getEndAt())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Krajnji datum mora biti posle pocetnog");
         }
         if(booking==null){

@@ -11,11 +11,15 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 
 public class Reservation {
     @Id
+    @Column(name="booking_id")
     private Integer bookingId; // PK je i foreign key iz Bookinga
+    @OneToOne(fetch=FetchType.LAZY,optional = false)
+    @JoinColumn(name="booking_id")
+    @MapsId
+    private BookingLocation booking;
     @Column(nullable = false)
     private Integer userId;
     @Column(nullable = false,updatable = false)
