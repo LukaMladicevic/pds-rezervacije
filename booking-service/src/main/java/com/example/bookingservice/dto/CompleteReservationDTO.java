@@ -19,7 +19,7 @@ import java.util.Date;
 public class CompleteReservationDTO {
 
     private Integer bookingId;
-    private String location;
+    private String accomodation;
     private Accomodation accomodationType;
     private Date startAt;
     private Date endAt;

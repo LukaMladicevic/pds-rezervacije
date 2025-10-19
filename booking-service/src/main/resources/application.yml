@@ -41,7 +41,6 @@ feign:
       default:
         connectTimeout: 2000
         readTimeout: 3000
-        retryer: feign.Retryer$NeverRetry
 
 management:
   endpoints:

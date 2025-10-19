@@ -1,10 +1,9 @@
 package com.example.bookingservice;
 
 import com.example.bookingservice.controller.ReservationController;
-import com.example.bookingservice.dto.CompleteReservationDTO;
 import com.example.bookingservice.dto.UserDTO;
 import com.example.bookingservice.entity.Accomodation;
-import com.example.bookingservice.entity.BookingLocation;
+import com.example.bookingservice.entity.BookingAccomodation;
 import com.example.bookingservice.entity.Reservation;
 import com.example.bookingservice.repository.BookingRepository;
 import com.example.bookingservice.repository.ReservationRepository;
@@ -47,7 +46,7 @@ class ReservationControllerWebMvcTest {
 
     @Test
     void getReservationsByUser_shouldReturn200AndList() throws Exception {
-        BookingLocation booking = new BookingLocation();
+        BookingAccomodation booking = new BookingAccomodation();
         booking.setId(1);
         booking.setLocation("Neka lokacija");
         booking.setAccomodationType(Accomodation.AIRBNB);

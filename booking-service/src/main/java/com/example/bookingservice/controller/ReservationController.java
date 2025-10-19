@@ -1,10 +1,9 @@
 package com.example.bookingservice.controller;
 
-import com.example.bookingservice.dto.BookingLocationDTO;
 import com.example.bookingservice.dto.CompleteReservationDTO;
 import com.example.bookingservice.dto.ReservationDTO;
 import com.example.bookingservice.dto.UserDTO;
-import com.example.bookingservice.entity.BookingLocation;
+import com.example.bookingservice.entity.BookingAccomodation;
 import com.example.bookingservice.entity.Reservation;
 import com.example.bookingservice.repository.BookingRepository;
 import com.example.bookingservice.repository.ReservationRepository;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -44,7 +42,7 @@ public class ReservationController {
         }
         service.fetchUser(userId);
 
-        BookingLocation bookingRef = bookingRepository.getReferenceById(bookingId);
+        BookingAccomodation bookingRef = bookingRepository.getReferenceById(bookingId);
 
         Reservation r = new Reservation();
         r.setBooking(bookingRef);
@@ -69,7 +67,7 @@ public class ReservationController {
             dto.setUserId(r.getUserId());
             dto.setCreatedAt(r.getCreatedAt());
 
-            BookingLocation booking = r.getBooking();
+            BookingAccomodation booking = r.getBooking();
             modelMapper.map(booking, dto);
             for (UserDTO user : users) {
                 if (Objects.equals(user.getId(), r.getUserId())) {
@@ -97,7 +95,7 @@ public class ReservationController {
             dto.setUserId(r.getUserId());
             dto.setCreatedAt(r.getCreatedAt());
 
-            BookingLocation booking = r.getBooking();
+            BookingAccomodation booking = r.getBooking();
             modelMapper.map(booking, dto);
             modelMapper.map(userDTO, dto);
             complete.add(dto);

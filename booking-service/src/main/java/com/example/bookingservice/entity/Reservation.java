@@ -19,7 +19,7 @@ public class Reservation {
     @OneToOne(fetch=FetchType.LAZY,optional = false)
     @JoinColumn(name="booking_id")
     @MapsId
-    private BookingLocation booking;
+    private BookingAccomodation booking;
     @Column(nullable = false)
     private Integer userId;
     @Column(nullable = false,updatable = false)

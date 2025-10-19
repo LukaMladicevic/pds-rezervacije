@@ -2,7 +2,6 @@ package com.example.bookingservice.entity;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,14 +15,14 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
-public class BookingLocation {
+public class BookingAccomodation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Integer id;
     @Column(nullable = false)
-    private String location;
+    private String accomodation;
     @Column(nullable = false)
     private Accomodation accomodationType;
     @Column(nullable = false)

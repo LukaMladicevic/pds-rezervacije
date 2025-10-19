@@ -1,8 +1,8 @@
 package com.example.bookingservice.controller;
 
-import com.example.bookingservice.dto.BookingLocationDTO;
+import com.example.bookingservice.dto.BookingAccomodationDTO;
 import com.example.bookingservice.dto.ChangeBookingDateDTO;
-import com.example.bookingservice.entity.BookingLocation;
+import com.example.bookingservice.entity.BookingAccomodation;
 import com.example.bookingservice.repository.BookingRepository;
 import com.example.bookingservice.repository.ReservationRepository;
 import jakarta.validation.Valid;
@@ -29,22 +29,22 @@ public class BookingController {
     private final ReservationRepository reservationRepository;
 
     @GetMapping
-    public List<String> getAllReservationBookingLocations(){
-        return bookingRepository.getAllLocations();
+    public List<String> getAllReservationBookingAccomodations(){
+        return bookingRepository.getAllAccomodations();
     }
     @GetMapping("/{id}")
-    public ResponseEntity<?> getLocationByID(@PathVariable @Min(1) Integer id){
-        BookingLocation location = bookingRepository.findById(id).orElse(null);
-        if(location == null){
+    public ResponseEntity<?> getAccomodationByID(@PathVariable @Min(1) Integer id){
+        BookingAccomodation accomodation = bookingRepository.findById(id).orElse(null);
+        if(accomodation == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Booking sa id-om: " +id+" nije pronadjen.");
         }
-        BookingLocationDTO response = modelMapper.map(location,BookingLocationDTO.class);
+        BookingAccomodationDTO response = modelMapper.map(accomodation,BookingAccomodationDTO.class);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
     @PostMapping
-    public ResponseEntity<?> saveBooking(@Valid @RequestBody BookingLocationDTO dto, BindingResult result){
+    public ResponseEntity<?> saveBooking(@Valid @RequestBody BookingAccomodationDTO dto, BindingResult result){
         if(result.hasErrors()){
             List<String> errors = result.getFieldErrors().stream().map(error->error.getDefaultMessage()).toList();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
@@ -52,7 +52,7 @@ public class BookingController {
         if(dto.getStartAt().after(dto.getEndAt()) || dto.getStartAt().equals(dto.getEndAt())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Krajnji datum mora biti posle pocetnog");
         }
-        BookingLocation booking = modelMapper.map(dto,BookingLocation.class);
+        BookingAccomodation booking = modelMapper.map(dto,BookingAccomodation.class);
         bookingRepository.save(booking);
         return ResponseEntity.status(HttpStatus.CREATED).body("Uspesno kreiran booking");
     }
@@ -76,7 +76,7 @@ public class BookingController {
             List<String> errors = result.getFieldErrors().stream().map(error->error.getDefaultMessage()).toList();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
-        BookingLocation booking = bookingRepository.findById(id).orElse(null);
+        BookingAccomodation booking = bookingRepository.findById(id).orElse(null);
         if(dto.getStartAt().after(dto.getEndAt()) || dto.getStartAt().equals(dto.getEndAt())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Krajnji datum mora biti posle pocetnog");
         }

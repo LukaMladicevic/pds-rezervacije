@@ -17,12 +17,12 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
-public class BookingLocationDTO {
+public class BookingAccomodationDTO {
 
-    @NotBlank(message="Lokacija je obavezna")
-    @Pattern(regexp = "^[A-Z].*",message="Ime lokacije mora poceti velikim slovom")
-    private String location;
-    @NotNull(message="Tip smestaja je obavezan")
+    @NotBlank(message="Smestaj je obavezan")
+    @Pattern(regexp = "^[A-Z].*",message="Ime smestaja mora poceti velikim slovom")
+    private String accomodation;
+    @NotNull(message="Tip smestaja je obavezan (HOTEL,AIRBNB,APARTMENT)")
     private Accomodation accomodationType;
     @NotNull(message="Pocetak bookinga je obavezan")
     @JsonFormat(pattern = "yyyy-MM-dd")
