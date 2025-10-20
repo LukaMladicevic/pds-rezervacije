@@ -13,6 +13,8 @@ discovery-service -> users-service -> booking-service -> api-gateway
 
 Moguce je pristupiti Eureka dashboard-u na http://localhost:8761, gde mozemo videti sve registrovane korisnike na Eureka server.
 
+Dodatno moguce slanje zahteva preko Swagger-UIa za users-service i booking service.
+
 Pristup centralizovanoj tacki za sve konekcije preko api-gateway-a na http://localhost:8080/api/**
 
 Pracenje CircuitBreaker stanja je moguce preko actuatora na http://localhost:8082/actuator/circuitbreakers
