@@ -35,20 +35,20 @@ class ReservationControllerWebMvcTest {
 
     @MockBean ReservationService reservationService;
     @MockBean ReservationRepository reservationRepository;
-    @MockBean BookingRepository bookingRepository; // injektuje se u kontroler, iako ga ovaj endpoint ne koristi
+    @MockBean BookingRepository bookingRepository;
 
     @TestConfiguration
     static class TestModelMapperConfig {
         @Bean ModelMapper modelMapper() {
-            return new ModelMapper(); // koristi default; ako imaš svoj MapperConfig, možeš @Import(MapperConfig.class)
+            return new ModelMapper();
         }
     }
 
     @Test
-    void getReservationsByUser_shouldReturn200AndList() throws Exception {
+    void getReservationsByUser() throws Exception {
         BookingAccomodation booking = new BookingAccomodation();
         booking.setId(1);
-        booking.setLocation("Neka lokacija");
+        booking.setAccomodation("Kragujevac");
         booking.setAccomodationType(Accomodation.AIRBNB);
         booking.setStartAt(new Date());
         booking.setEndAt(new Date());
@@ -74,7 +74,7 @@ class ReservationControllerWebMvcTest {
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$[0].userId").value(7))
                 .andExpect(jsonPath("$[0].bookingId").value(1))
-                .andExpect(jsonPath("$[0].location").value("Neka lokacija"))
+                .andExpect(jsonPath("$[0].accomodation").value("Kragujevac"))
                 .andExpect(jsonPath("$[0].accomodationType").value("AIRBNB"))
                 .andExpect(jsonPath("$[0].firstName").value("Luka"))
                 .andExpect(jsonPath("$[0].lastName").value("Mladicevic"));
