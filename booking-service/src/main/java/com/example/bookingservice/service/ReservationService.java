@@ -11,7 +11,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationService {
 
-    private final UsersClient usersClient;
     private final ReservationIntegrationService integration;
 
     public UserDTO fetchUser(Integer userID) {

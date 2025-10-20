@@ -19,8 +19,8 @@ import java.util.Date;
 @Setter
 public class BookingAccomodationDTO {
 
-    @NotBlank(message="Smestaj je obavezan")
-    @Pattern(regexp = "^[A-Z].*",message="Ime smestaja mora poceti velikim slovom")
+    @NotBlank(message="Naziv smestaja je obavezan")
+    @Pattern(regexp = "^[A-Z].*",message="Naziv smestaja mora poceti velikim slovom")
     private String accomodation;
     @NotNull(message="Tip smestaja je obavezan (HOTEL,AIRBNB,APARTMENT)")
     private Accomodation accomodationType;

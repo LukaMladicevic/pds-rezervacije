@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Reservation {
     @Id
     @Column(name="booking_id")
-    private Integer bookingId; // PK je i foreign key iz Bookinga
+    private Integer bookingId; // PK je i FK iz Bookinga
     @OneToOne(fetch=FetchType.LAZY,optional = false)
     @JoinColumn(name="booking_id")
     @MapsId
@@ -28,5 +28,5 @@ public class Reservation {
     @PrePersist
     void makeTime(){
         createdAt = LocalDateTime.now();
-    }//Odmah pred cuvanje entiteta u bazu cuvamo i parametar kada je kreiran.
+    }//odmah pred cuvanje entiteta u bazu cuvamo i parametar kada je kreiran
 }

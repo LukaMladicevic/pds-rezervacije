@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+
 import java.util.List;
 
 @Service
@@ -30,10 +31,7 @@ public class ReservationIntegrationService {
 
     public UserDTO getUserFallback(Integer userId, Throwable t) {
         log.warn("CB fallback pri trazenju korisnika sa id-jem = "+ userId+" cause="+t.toString());
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                "Users service trenutno nije dostupan (CB fallback).", t
-        );
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Users service trenutno nije dostupan (CB fallback)", t);
     }
 
     @Retry(name="externalRetry")
@@ -45,9 +43,7 @@ public class ReservationIntegrationService {
 
     public List<UserDTO> getReservationsFallback(Throwable t) {
         log.warn("CB fallback pri trazenju svih korisnika cause="+t.toString());
-        throw new ResponseStatusException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                "Users service nedostupan (CB fallback).", t);
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Users service nedostupan (CB fallback)", t);
     }
 
 
