@@ -45,7 +45,5 @@ public class ReservationIntegrationService {
         log.warn("CB fallback pri trazenju svih korisnika cause="+t.toString());
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Users service nedostupan (CB fallback)", t);
     }
-
-
 }
 
